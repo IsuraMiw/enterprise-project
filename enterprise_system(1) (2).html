@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Электронный образ предприятия</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --bg2: #161b27;
+    --bg3: #1e2535;
+    --border: #2a3548;
+    --border2: #3a4a65;
+    --accent: #4f9cf9;
+    --accent2: #7ec8e3;
+    --text: #e8edf5;
+    --text2: #8a9ab8;
+    --text3: #5a6880;
+    --success: #3dd68c;
+    --warning: #f5a623;
+    --danger: #f25c5c;
+    --purple: #a78bfa;
+    --teal: #2dd4bf;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  .sidebar {
+    width: 220px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+
+  .sidebar-logo {
+    padding: 20px 16px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo-text {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .logo-sub {
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 2px;
+    letter-spacing: 0.05em;
+  }
+
+  .nav { padding: 12px 8px; flex: 1; }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(79,156,249,0.15); color: var(--accent); }
+
+  .nav-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+    opacity: 0.8;
+  }
+
+  .nav-section {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    padding: 14px 10px 4px;
+  }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .topbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .topbar-title { font-size: 16px; font-weight: 700; }
+  .topbar-actions { display: flex; gap: 8px; }
+
+  .btn {
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-family: 'Manrope', sans-serif;
+  }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #3a8cf0; }
+  .btn-ghost { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
+  .btn-ghost:hover { background: var(--border); color: var(--text); }
+  .btn-danger { background: rgba(242,92,92,0.15); color: var(--danger); border: 1px solid rgba(242,92,92,0.3); }
+  .btn-danger:hover { background: rgba(242,92,92,0.25); }
+  .btn-success { background: rgba(61,214,140,0.15); color: var(--success); border: 1px solid rgba(61,214,140,0.3); }
+  .btn-success:hover { background: rgba(61,214,140,0.25); }
+  .btn-sm { padding: 4px 10px; font-size: 11px; }
+
+  .content { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+  /* STATS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .stat-label { font-size: 11px; color: var(--text3); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  .stat-value { font-size: 28px; font-weight: 700; margin: 4px 0 2px; font-family: 'JetBrains Mono', monospace; }
+  .stat-sub { font-size: 11px; color: var(--text3); }
+  .stat-accent { color: var(--accent); }
+  .stat-success { color: var(--success); }
+  .stat-warning { color: var(--warning); }
+  .stat-purple { color: var(--purple); }
+
+  /* PANEL */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg3);
+  }
+
+  .panel-title { font-size: 13px; font-weight: 700; }
+
+  /* SEARCH & FILTER */
+  .toolbar {
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Manrope', sans-serif;
+    padding: 7px 0;
+    width: 100%;
+  }
+
+  .search-box input::placeholder { color: var(--text3); }
+
+  select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 12px;
+    font-family: 'Manrope', sans-serif;
+    cursor: pointer;
+    outline: none;
+  }
+
+  select:focus { border-color: var(--accent); }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left;
+    padding: 10px 12px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  th:hover { color: var(--text2); }
+
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .badge-blue { background: rgba(79,156,249,0.15); color: var(--accent); }
+  .badge-green { background: rgba(61,214,140,0.15); color: var(--success); }
+  .badge-yellow { background: rgba(245,166,35,0.15); color: var(--warning); }
+  .badge-purple { background: rgba(167,139,250,0.15); color: var(--purple); }
+  .badge-teal { background: rgba(45,212,191,0.15); color: var(--teal); }
+  .badge-red { background: rgba(242,92,92,0.15); color: var(--danger); }
+
+  .avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .emp-cell { display: flex; align-items: center; gap: 10px; }
+  .emp-name { font-weight: 600; }
+  .emp-id { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title { font-size: 15px; font-weight: 700; }
+  .modal-close { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 18px; line-height: 1; padding: 0; }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-body { padding: 20px; }
+  .modal-footer { padding: 16px 20px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); margin-bottom: 6px; display: block; }
+
+  .form-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Manrope', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* VIEWS */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ORG CHART */
+  .org-tree { padding: 20px; overflow-x: auto; }
+
+  .dept-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .dept-header {
+    padding: 12px 16px;
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+
+  .dept-name { font-weight: 700; font-size: 14px; }
+  .dept-info { font-size: 12px; color: var(--text3); }
+  .dept-toggle { color: var(--text3); transition: transform 0.2s; }
+  .dept-toggle.open { transform: rotate(90deg); }
+
+  .dept-employees { padding: 8px 0; }
+
+  .emp-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .emp-row:last-child { border-bottom: none; }
+  .emp-row-name { flex: 1; font-weight: 500; }
+  .emp-row-pos { color: var(--text3); font-size: 12px; }
+  .emp-row-salary { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--success); }
+
+  /* NOTIFICATION */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 200;
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast-success { border-left: 3px solid var(--success); }
+  .toast-danger { border-left: 3px solid var(--danger); }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text3);
+  }
+
+  .empty-state-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.5; }
+  .empty-state-text { font-size: 14px; }
+
+  .sort-arrow { margin-left: 4px; opacity: 0.5; }
+  .sort-arrow.active { opacity: 1; color: var(--accent); }
+
+  .page-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .org-chart{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:40px 20px;
+    color:#fff;
+}
+
+/* Главный директор */
+.org-top{
+    margin-bottom:60px;
+    position:relative;
+}
+
+.org-top::after{
+    content:"";
+    position:absolute;
+    width:4px;
+    height:50px;
+    background:#4f9cf9;
+    left:50%;
+    top:100%;
+    transform:translateX(-50%);
+}
+
+/* Средний уровень */
+.org-level{
+    display:flex;
+    justify-content:center;
+    gap:80px;
+    position:relative;
+    margin-top:40px;
+}
+
+.org-level::before{
+    content:"";
+    position:absolute;
+    top:-25px;
+    left:10%;
+    width:80%;
+    height:4px;
+    background:#4f9cf9;
+}
+
+/* Карточка сотрудника */
+.org-card{
+    background:#1b2333;
+    border:1px solid #2f3d57;
+    border-radius:16px;
+    width:220px;
+    padding:20px;
+    text-align:center;
+    position:relative;
+    box-shadow:0 0 20px rgba(0,0,0,0.3);
+    transition:0.3s;
+}
+
+.org-card:hover{
+    transform:translateY(-5px);
+    border-color:#4f9cf9;
+    box-shadow:0 0 25px rgba(79,156,249,0.3);
+}
+
+/* Линия вниз */
+.org-card::after{
+    content:"";
+    position:absolute;
+    width:4px;
+    height:35px;
+    background:#4f9cf9;
+    left:50%;
+    top:100%;
+    transform:translateX(-50%);
+}
+
+/* Аватар */
+.org-avatar{
+    width:80px;
+    height:80px;
+    border-radius:50%;
+    margin:0 auto 15px;
+    background:#2b3954;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:36px;
+    border:3px solid #4f9cf9;
+}
+
+/* Имя */
+.org-name{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+/* Должность */
+.org-role{
+    color:#7ec8e3;
+    font-size:14px;
+}
+
+/* Нижний уровень */
+.org-children{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    margin-top:60px;
+}
+
+/* Убираем линию у последнего уровня */
+.org-children .org-card::after{
+    display:none;
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-text">ЭОП Система</div>
+      <div class="logo-sub">Электронный образ предприятия</div>
+    </div>
+    <div class="nav">
+      <div class="nav-section">Навигация</div>
+      <button class="nav-item active" onclick="switchView('dashboard', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2V2zm7 0h5v5H9V2zM2 9h5v5H2V9zm7 0h5v5H9V9z"/></svg>
+        Дашборд
+      </button>
+      <button class="nav-item" onclick="switchView('employees', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3z"/></svg>
+        Сотрудники
+      </button>
+      <button class="nav-item" onclick="switchView('departments', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M1 2a1 1 0 011-1h4a1 1 0 011 1v2h2V2a1 1 0 011-1h4a1 1 0 011 1v3a1 1 0 01-1 1h-1v2h1a1 1 0 011 1v3a1 1 0 01-1 1h-4a1 1 0 01-1-1v-3a1 1 0 011-1h1V6H8v2h1a1 1 0 011 1v3a1 1 0 01-1 1H5a1 1 0 01-1-1V9a1 1 0 011-1h1V6H4V5H2a1 1 0 01-1-1V2z"/></svg>
+        Отделы
+      </button>
+      <button class="nav-item" onclick="switchView('positions', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M6 1a2 2 0 00-2 2v1H2a1 1 0 00-1 1v9a1 1 0 001 1h12a1 1 0 001-1V5a1 1 0 00-1-1h-2V3a2 2 0 00-2-2H6zm4 3V3a1 1 0 00-1-1H7a1 1 0 00-1 1v1h4z"/></svg>
+        Должности
+      </button>
+      <button class="nav-item" onclick="switchView('structure', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2a1 1 0 011-1h8a1 1 0 011 1v1h1a1 1 0 011 1v2a1 1 0 01-1 1h-1v1H9v1h1a1 1 0 011 1v2a1 1 0 01-1 1H6a1 1 0 01-1-1v-2a1 1 0 011-1h1V8H4V7H3a1 1 0 01-1-1V4a1 1 0 011-1V2z"/></svg>
+        Структура
+      </button>
+      <button class="nav-item" onclick="switchView('oop', this)">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M14 1H2a1 1 0 00-1 1v4a1 1 0 001 1h5v2H5a1 1 0 00-1 1v4a1 1 0 001 1h6a1 1 0 001-1v-4a1 1 0 00-1-1H9V7h5a1 1 0 001-1V2a1 1 0 00-1-1zM3 2h10v3H3V2zm3 8h4v3H6v-3z"/></svg>
+        Демо ООП
+      </button>
+      <div class="nav-section">Данные</div>
+      <button class="nav-item" onclick="doExport()">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a.5.5 0 01.5.5v7.793l2.646-2.647a.5.5 0 01.708.708l-3.5 3.5a.5.5 0 01-.708 0l-3.5-3.5a.5.5 0 11.708-.708L7.5 9.293V1.5A.5.5 0 018 1zM2 13.5a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/></svg>
+        Экспорт JSON
+      </button>
+      <button class="nav-item" onclick="doImport()">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M8 15a.5.5 0 01-.5-.5V6.707L4.854 9.354a.5.5 0 11-.708-.708l3.5-3.5a.5.5 0 01.708 0l3.5 3.5a.5.5 0 01-.708.708L8.5 6.707V14.5A.5.5 0 018 15zM2 2.5a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/></svg>
+        Импорт JSON
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="page-title">Дашборд</div>
+      <div class="topbar-actions" id="page-actions"></div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD VIEW -->
+      <div class="view active" id="view-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Всего сотрудников</div>
+            <div class="stat-value stat-accent" id="stat-total">0</div>
+            <div class="stat-sub">в штате</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Отделов</div>
+            <div class="stat-value stat-success" id="stat-depts">0</div>
+            <div class="stat-sub">подразделений</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Должностей</div>
+            <div class="stat-value stat-purple" id="stat-positions">0</div>
+            <div class="stat-sub">уникальных</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Средняя зарплата</div>
+            <div class="stat-value stat-warning" id="stat-avg-salary">0</div>
+            <div class="stat-sub">тыс. сом./мес.</div>
+          </div>
+        </div>
+
+        <div class="page-grid">
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Последние сотрудники</span>
+            </div>
+            <div id="dash-recent-employees"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Распределение по отделам</span>
+            </div>
+            <div id="dash-dept-dist" style="padding: 8px 0;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPLOYEES VIEW -->
+      <div class="view" id="view-employees">
+        <div class="panel">
+          <div class="toolbar">
+            <div class="search-box">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="color:var(--text3);flex-shrink:0"><path d="M6.5 1a5.5 5.5 0 104.227 9.02l3.127 3.127a.75.75 0 101.06-1.06l-3.127-3.128A5.5 5.5 0 006.5 1zm-4 5.5a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
+              <input type="text" id="emp-search" placeholder="Поиск по имени, отделу, должности..." oninput="renderEmployees()">
+            </div>
+            <select id="emp-dept-filter" onchange="renderEmployees()">
+              <option value="">Все отделы</option>
+            </select>
+            <select id="emp-sort" onchange="renderEmployees()">
+              <option value="name">По имени</option>
+              <option value="dept">По отделу</option>
+              <option value="salary-asc">Зарплата ↑</option>
+              <option value="salary-desc">Зарплата ↓</option>
+            </select>
+          </div>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:36px">#</th>
+                  <th>Сотрудник</th>
+                  <th>Отдел</th>
+                  <th>Должность</th>
+                  <th>Телефон</th>
+                  <th>Зарплата</th>
+                  <th>Дата найма</th>
+                  <th>Статус</th>
+                  <th style="width:80px">Действия</th>
+                </tr>
+              </thead>
+              <tbody id="emp-table-body"></tbody>
+            </table>
+          </div>
+          <div id="emp-empty" class="empty-state" style="display:none">
+            <div class="empty-state-icon">👥</div>
+            <div class="empty-state-text">Сотрудники не найдены</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DEPARTMENTS VIEW -->
+      <div class="view" id="view-departments">
+        <div class="panel">
+          <div class="toolbar">
+            <div class="search-box">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="color:var(--text3);flex-shrink:0"><path d="M6.5 1a5.5 5.5 0 104.227 9.02l3.127 3.127a.75.75 0 101.06-1.06l-3.127-3.128A5.5 5.5 0 006.5 1zm-4 5.5a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
+              <input type="text" id="dept-search" placeholder="Поиск отдела..." oninput="renderDepartments()">
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Отдел</th>
+                <th>Руководитель</th>
+                <th>Кол-во сотрудников</th>
+                <th>Ср. зарплата</th>
+                <th>ФОТ/мес</th>
+                <th style="width:80px">Действия</th>
+              </tr>
+            </thead>
+            <tbody id="dept-table-body"></tbody>
+          </table>
+          <div id="dept-empty" class="empty-state" style="display:none">
+            <div class="empty-state-icon">🏢</div>
+            <div class="empty-state-text">Отделы не найдены</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POSITIONS VIEW -->
+      <div class="view" id="view-positions">
+        <div class="panel">
+          <div class="toolbar">
+            <div class="search-box">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor" style="color:var(--text3);flex-shrink:0"><path d="M6.5 1a5.5 5.5 0 104.227 9.02l3.127 3.127a.75.75 0 101.06-1.06l-3.127-3.128A5.5 5.5 0 006.5 1zm-4 5.5a4 4 0 118 0 4 4 0 01-8 0z"/></svg>
+              <input type="text" id="pos-search" placeholder="Поиск должности..." oninput="renderPositions()">
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Должность</th>
+                <th>Категория</th>
+                <th>Кол-во сотрудников</th>
+                <th>Мин. зарплата</th>
+                <th>Макс. зарплата</th>
+                <th style="width:80px">Действия</th>
+              </tr>
+            </thead>
+            <tbody id="pos-table-body"></tbody>
+          </table>
+          <div id="pos-empty" class="empty-state" style="display:none">
+            <div class="empty-state-icon">💼</div>
+            <div class="empty-state-text">Должности не найдены</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STRUCTURE VIEW -->
+      <div class="view" id="view-structure">
+        <div id="org-chart" class="org-tree"></div>
+      </div>
+
+      <!-- OOP DEMO VIEW -->
+      <div class="view" id="view-oop">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Принцип: Полиморфизм</span></div>
+            <div style="padding:16px;font-size:13px;color:var(--text2);line-height:1.8">
+              Метод <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--accent)">describe()</code> объявлен в базовом классе <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--purple)">Entity</code> и переопределён в каждом дочернем классе. При вызове на любом объекте — без знания его конкретного типа — возвращается нужная реализация.
+              <div style="margin-top:12px;padding:10px 14px;background:var(--bg3);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">
+                <span style="color:var(--text2)">// Один вызов — три разных результата</span><br>
+                entities.forEach(e =&gt; e.<span style="color:var(--accent)">describe</span>())
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Принцип: Наследование</span></div>
+            <div style="padding:16px;font-size:13px;color:var(--text2);line-height:1.8">
+              Три класса наследуют от <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--purple)">Entity</code>: каждый получает <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--accent)">id</code>, <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--accent)">createdAt</code> и базовый <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--accent)">describe()</code> автоматически через <code style="background:var(--bg3);padding:1px 6px;border-radius:4px;color:var(--accent)">extends</code>.
+              <div style="margin-top:12px;display:flex;flex-direction:column;gap:4px;font-family:'JetBrains Mono',monospace;font-size:11px">
+                <div style="padding:4px 10px;background:rgba(167,139,250,0.1);border-left:2px solid var(--purple);border-radius:0 4px 4px 0;color:var(--purple)">Entity (базовый)</div>
+                <div style="padding:4px 10px;padding-left:24px;background:rgba(79,156,249,0.08);border-left:2px solid var(--accent);border-radius:0 4px 4px 0;color:var(--accent)">↳ Employee</div>
+                <div style="padding:4px 10px;padding-left:24px;background:rgba(61,214,140,0.08);border-left:2px solid var(--success);border-radius:0 4px 4px 0;color:var(--success)">↳ Department</div>
+                <div style="padding:4px 10px;padding-left:24px;background:rgba(245,166,35,0.08);border-left:2px solid var(--warning);border-radius:0 4px 4px 0;color:var(--warning)">↳ Position</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Живая демонстрация: вызов describe() на всех объектах системы</span>
+            <button class="btn btn-ghost btn-sm" onclick="renderOop()">↻ Обновить</button>
+          </div>
+          <div style="padding:12px 16px;display:flex;gap:8px;border-bottom:1px solid var(--border)">
+            <button class="btn btn-ghost btn-sm" onclick="filterOop('all')" id="oop-btn-all" style="border-color:var(--accent);color:var(--accent)">Все</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterOop('Employee')" id="oop-btn-Employee">Сотрудники</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterOop('Department')" id="oop-btn-Department">Отделы</button>
+            <button class="btn btn-ghost btn-sm" onclick="filterOop('Position')" id="oop-btn-Position">Должности</button>
+          </div>
+          <div id="oop-list" style="padding:8px 0;max-height:400px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:12px"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-employee">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-emp-title">Добавить сотрудника</span>
+      <button class="modal-close" onclick="closeModal('modal-employee')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="emp-edit-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Имя</label>
+          <input type="text" class="form-input" id="emp-f-firstname" placeholder="Иван">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Фамилия</label>
+          <input type="text" class="form-input" id="emp-f-lastname" placeholder="Иванов">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Отдел</label>
+          <select class="form-input" id="emp-f-dept" onchange="updatePositionSelect()"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Должность</label>
+          <select class="form-input" id="emp-f-position"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Телефон</label>
+          <input type="text" class="form-input" id="emp-f-phone" placeholder="+7 (900) 000-00-00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="text" class="form-input" id="emp-f-email" placeholder="ivan@company.ru">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Зарплата (руб.)</label>
+          <input type="number" class="form-input" id="emp-f-salary" placeholder="80000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Дата найма</label>
+          <input type="date" class="form-input" id="emp-f-hiredate">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Статус</label>
+        <select class="form-input" id="emp-f-status">
+          <option value="active">Активен</option>
+          <option value="vacation">В отпуске</option>
+          <option value="remote">Удалённо</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-employee')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveEmployee()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-department">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-dept-title">Добавить отдел</span>
+      <button class="modal-close" onclick="closeModal('modal-department')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dept-edit-id">
+      <div class="form-group">
+        <label class="form-label">Название отдела</label>
+        <input type="text" class="form-input" id="dept-f-name" placeholder="Отдел разработки">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Код отдела</label>
+          <input type="text" class="form-input" id="dept-f-code" placeholder="IT">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Руководитель</label>
+          <select class="form-input" id="dept-f-head">
+            <option value="">— не назначен —</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-department')">Отмена</button>
+      <button class="btn btn-primary" onclick="saveDepartment()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-position">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-pos-title">Добавить должность</span>
+      <button class="modal-close" onclick="closeModal('modal-position')">×</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="pos-edit-id">
+      <div class="form-group">
+        <label class="form-label">Название должности</label>
+        <input type="text" class="form-input" id="pos-f-name" placeholder="Senior разработчик">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Категория</label>
+          <select class="form-input" id="pos-f-category">
+            <option>Технический персонал</option>
+            <option>Управленческий персонал</option>
+            <option>Административный персонал</option>
+            <option>Финансовый персонал</option>
+            <option>Маркетинг и продажи</option>
+            <option>HR и обучение</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Уровень</label>
+          <select class="form-input" id="pos-f-level">
+            <option value="junior">Junior</option>
+            <option value="middle">Middle</option>
+            <option value="senior">Senior</option>
+            <option value="lead">Lead / Head</option>
+            <option value="director">Директор</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-position')">Отмена</button>
+      <button class="btn btn-primary" onclick="savePosition()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// ООП АРХИТЕКТУРА
+// ============================================================
+
+// Базовый класс сущности
+class Entity {
+  constructor(id) {
+    this.id = id || Date.now() + Math.random().toString(36).slice(2);
+    this.createdAt = new Date().toISOString();
+  }
+
+  // Полиморфный метод — переопределяется в каждом дочернем классе
+  describe() {
+    return `Сущность [${this.constructor.name}] · ID: ${this.id.slice(0, 8)}`;
+  }
+
+  toJSON() {
+    return { ...this };
+  }
+
+  static fromJSON(data) {
+    return Object.assign(new this(), data);
+  }
+}
+
+// Класс: Должность
+class Position extends Entity {
+  constructor({ id, name, category, level } = {}) {
+    super(id);
+    this.name = name || '';
+    this.category = category || 'Технический персонал';
+    this.level = level || 'middle';
+  }
+
+  getLevelLabel() {
+    const map = { junior: 'Junior', middle: 'Middle', senior: 'Senior', lead: 'Lead', director: 'Директор' };
+    return map[this.level] || this.level;
+  }
+
+  getLevelBadge() {
+    const map = { junior: 'badge-teal', middle: 'badge-blue', senior: 'badge-purple', lead: 'badge-yellow', director: 'badge-red' };
+    return map[this.level] || 'badge-blue';
+  }
+
+  // Переопределение полиморфного метода describe()
+  describe() {
+    return `Должность: «${this.name}» · Уровень: ${this.getLevelLabel()} · Категория: ${this.category}`;
+  }
+}
+
+// Класс: Отдел
+class Department extends Entity {
+  constructor({ id, name, code, headId } = {}) {
+    super(id);
+    this.name = name || '';
+    this.code = code || '';
+    this.headId = headId || null;
+  }
+
+  getEmployees(allEmployees) {
+    return allEmployees.filter(e => e.deptId === this.id);
+  }
+
+  getHead(allEmployees) {
+    return allEmployees.find(e => e.id === this.headId) || null;
+  }
+
+  getAvgSalary(allEmployees) {
+    const emps = this.getEmployees(allEmployees);
+    if (!emps.length) return 0;
+    return Math.round(emps.reduce((s, e) => s + e.salary, 0) / emps.length);
+  }
+
+  getTotalSalary(allEmployees) {
+    return this.getEmployees(allEmployees).reduce((s, e) => s + e.salary, 0);
+  }
+
+  // Переопределение полиморфного метода describe()
+  describe() {
+    return `Отдел: «${this.name}» (${this.code}) · Руководитель назначен: ${this.headId ? 'Да' : 'Нет'}`;
+  }
+}
+
+// Класс: Сотрудник
+class Employee extends Entity {
+  constructor({ id, firstName, lastName, deptId, positionId, phone, email, salary, hireDate, status } = {}) {
+    super(id);
+    this.firstName = firstName || '';
+    this.lastName = lastName || '';
+    this.deptId = deptId || null;
+    this.positionId = positionId || null;
+    this.phone = phone || '';
+    this.email = email || '';
+    this.salary = salary || 0;
+    this.hireDate = hireDate || new Date().toISOString().slice(0, 10);
+    this.status = status || 'active';
+  }
+
+  getFullName() {
+    return `${this.lastName} ${this.firstName}`;
+  }
+
+  getInitials() {
+    return `${this.firstName[0] || ''}${this.lastName[0] || ''}`.toUpperCase();
+  }
+
+  getDept(depts) {
+    return depts.find(d => d.id === this.deptId) || null;
+  }
+
+  getPosition(positions) {
+    return positions.find(p => p.id === this.positionId) || null;
+  }
+
+  getStatusLabel() {
+    const map = { active: 'Активен', vacation: 'В отпуске', remote: 'Удалённо' };
+    return map[this.status] || this.status;
+  }
+
+  getStatusBadge() {
+    const map = { active: 'badge-green', vacation: 'badge-yellow', remote: 'badge-blue' };
+    return map[this.status] || 'badge-blue';
+  }
+
+  getAvatarColor() {
+    const colors = [
+      ['rgba(79,156,249,0.2)', '#4f9cf9'],
+      ['rgba(61,214,140,0.2)', '#3dd68c'],
+      ['rgba(167,139,250,0.2)', '#a78bfa'],
+      ['rgba(245,166,35,0.2)', '#f5a623'],
+      ['rgba(45,212,191,0.2)', '#2dd4bf'],
+      ['rgba(242,92,92,0.2)', '#f25c5c'],
+    ];
+    const idx = (this.firstName.charCodeAt(0) || 0) % colors.length;
+    return colors[idx];
+  }
+
+  // Переопределение полиморфного метода describe()
+  describe() {
+    return `Сотрудник: ${this.getFullName()} · Статус: ${this.getStatusLabel()} · Зарплата: ${this.salary.toLocaleString('ru-RU')} сом`;
+  }
+}
+
+// Класс: Хранилище данных (репозиторий)
+class DataRepository {
+  constructor(storageKey) {
+    this.storageKey = storageKey;
+    this.data = this.load();
+  }
+
+  load() {
+    try {
+      const raw = localStorage.getItem(this.storageKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+
+  save(data) {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(data));
+    } catch (e) { console.warn('Storage error:', e); }
+  }
+
+  // Экспорт в JSON-файл (скачивание)
+  exportToFile(data) {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `enterprise_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Импорт из JSON-файла
+  importFromFile(callback) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          callback(null, data);
+        } catch {
+          callback(new Error('Неверный формат файла'), null);
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }
+}
+
+// Класс: Менеджер предприятия (главный контроллер)
+class EnterpriseManager {
+  constructor() {
+    this.repo = new DataRepository('eop_enterprise_data');
+    this.employees = [];
+    this.departments = [];
+    this.positions = [];
+    this.loadData();
+  }
+
+  loadData() {
+    const d = this.repo.data;
+    if (d) {
+      this.departments = (d.departments || []).map(x => Object.assign(new Department(), x));
+      this.positions = (d.positions || []).map(x => Object.assign(new Position(), x));
+      this.employees = (d.employees || []).map(x => Object.assign(new Employee(), x));
+    } else {
+      this.seedData();
+    }
+  }
+
+  persist() {
+    this.repo.save({
+      departments: this.departments,
+      positions: this.positions,
+      employees: this.employees
+    });
+  }
+
+  seedData() {
+    // Инициализация начальных данных
+    const depts = [
+      new Department({ name: 'Разработка ПО', code: 'DEV' }),
+      new Department({ name: 'Маркетинг', code: 'MKT' }),
+      new Department({ name: 'Финансы', code: 'FIN' }),
+      new Department({ name: 'HR и кадры', code: 'HR' }),
+      new Department({ name: 'Продажи', code: 'SALES' }),
+    ];
+    this.departments = depts;
+
+    const positions = [
+      new Position({ name: 'Генеральный директор', category: 'Управленческий персонал', level: 'director' }),
+      new Position({ name: 'Руководитель отдела', category: 'Управленческий персонал', level: 'lead' }),
+      new Position({ name: 'Senior разработчик', category: 'Технический персонал', level: 'senior' }),
+      new Position({ name: 'Middle разработчик', category: 'Технический персонал', level: 'middle' }),
+      new Position({ name: 'Junior разработчик', category: 'Технический персонал', level: 'junior' }),
+      new Position({ name: 'Маркетолог', category: 'Маркетинг и продажи', level: 'middle' }),
+      new Position({ name: 'Финансовый аналитик', category: 'Финансовый персонал', level: 'senior' }),
+      new Position({ name: 'HR-менеджер', category: 'HR и обучение', level: 'middle' }),
+      new Position({ name: 'Менеджер по продажам', category: 'Маркетинг и продажи', level: 'middle' }),
+    ];
+    this.positions = positions;
+
+    const emp = [
+      new Employee({ firstName: 'Алексей', lastName: 'Смирнов', deptId: depts[0].id, positionId: positions[2].id, phone: '+7 (900) 111-22-33', email: 'smirnov@company.ru', salary: 150000, hireDate: '2021-03-15', status: 'active' }),
+      new Employee({ firstName: 'Мария', lastName: 'Кузнецова', deptId: depts[1].id, positionId: positions[5].id, phone: '+7 (900) 222-33-44', email: 'kuznetsova@company.ru', salary: 95000, hireDate: '2022-06-01', status: 'active' }),
+      new Employee({ firstName: 'Дмитрий', lastName: 'Попов', deptId: depts[0].id, positionId: positions[3].id, phone: '+7 (900) 333-44-55', email: 'popov@company.ru', salary: 110000, hireDate: '2022-09-12', status: 'remote' }),
+      new Employee({ firstName: 'Анна', lastName: 'Иванова', deptId: depts[2].id, positionId: positions[6].id, phone: '+7 (900) 444-55-66', email: 'ivanova@company.ru', salary: 130000, hireDate: '2020-11-20', status: 'active' }),
+      new Employee({ firstName: 'Сергей', lastName: 'Соколов', deptId: depts[4].id, positionId: positions[8].id, phone: '+7 (900) 555-66-77', email: 'sokolov@company.ru', salary: 85000, hireDate: '2023-01-09', status: 'active' }),
+      new Employee({ firstName: 'Елена', lastName: 'Новикова', deptId: depts[3].id, positionId: positions[7].id, phone: '+7 (900) 666-77-88', email: 'novikova@company.ru', salary: 88000, hireDate: '2022-04-15', status: 'vacation' }),
+      new Employee({ firstName: 'Павел', lastName: 'Морозов', deptId: depts[0].id, positionId: positions[4].id, phone: '+7 (900) 777-88-99', email: 'morozov@company.ru', salary: 75000, hireDate: '2023-07-01', status: 'active' }),
+      new Employee({ firstName: 'Ольга', lastName: 'Волкова', deptId: depts[1].id, positionId: positions[1].id, phone: '+7 (900) 888-99-00', email: 'volkova@company.ru', salary: 120000, hireDate: '2021-08-23', status: 'active' }),
+    ];
+    this.employees = emp;
+
+    // Назначение руководителей
+    depts[0].headId = emp[0].id;
+    depts[1].headId = emp[7].id;
+    depts[2].headId = emp[3].id;
+
+    this.persist();
+  }
+
+  // ── Employees ──
+  addEmployee(data) {
+    const e = new Employee(data);
+    this.employees.push(e);
+    this.persist();
+    return e;
+  }
+
+  updateEmployee(id, data) {
+    const e = this.employees.find(x => x.id === id);
+    if (e) { Object.assign(e, data); this.persist(); }
+    return e;
+  }
+
+  deleteEmployee(id) {
+    this.employees = this.employees.filter(e => e.id !== id);
+    // Снять с руководства
+    this.departments.forEach(d => { if (d.headId === id) d.headId = null; });
+    this.persist();
+  }
+
+  searchEmployees(query) {
+    const q = query.toLowerCase();
+    return this.employees.filter(e =>
+      e.getFullName().toLowerCase().includes(q) ||
+      (e.getDept(this.departments)?.name || '').toLowerCase().includes(q) ||
+      (e.getPosition(this.positions)?.name || '').toLowerCase().includes(q)
+    );
+  }
+
+  sortEmployees(list, by) {
+    return [...list].sort((a, b) => {
+      if (by === 'name') return a.getFullName().localeCompare(b.getFullName(), 'ru');
+      if (by === 'dept') {
+        const da = a.getDept(this.departments)?.name || '';
+        const db = b.getDept(this.departments)?.name || '';
+        return da.localeCompare(db, 'ru');
+      }
+      if (by === 'salary-asc') return a.salary - b.salary;
+      if (by === 'salary-desc') return b.salary - a.salary;
+      return 0;
+    });
+  }
+
+  // ── Departments ──
+  addDepartment(data) {
+    const d = new Department(data);
+    this.departments.push(d);
+    this.persist();
+    return d;
+  }
+
+  updateDepartment(id, data) {
+    const d = this.departments.find(x => x.id === id);
+    if (d) { Object.assign(d, data); this.persist(); }
+    return d;
+  }
+
+  deleteDepartment(id) {
+    this.departments = this.departments.filter(d => d.id !== id);
+    this.employees.forEach(e => { if (e.deptId === id) e.deptId = null; });
+    this.persist();
+  }
+
+  // ── Positions ──
+  addPosition(data) {
+    const p = new Position(data);
+    this.positions.push(p);
+    this.persist();
+    return p;
+  }
+
+  updatePosition(id, data) {
+    const p = this.positions.find(x => x.id === id);
+    if (p) { Object.assign(p, data); this.persist(); }
+    return p;
+  }
+
+  deletePosition(id) {
+    this.positions = this.positions.filter(p => p.id !== id);
+    this.employees.forEach(e => { if (e.positionId === id) e.positionId = null; });
+    this.persist();
+  }
+
+  // ── Analytics ──
+  getStats() {
+    const avgSalary = this.employees.length
+      ? Math.round(this.employees.reduce((s, e) => s + e.salary, 0) / this.employees.length / 1000)
+      : 0;
+    return {
+      total: this.employees.length,
+      depts: this.departments.length,
+      positions: this.positions.length,
+      avgSalary
+    };
+  }
+
+  // ── Полиморфизм: вызов describe() на любом объекте системы ──
+  // Один метод describe() вызывается на Employee, Department, Position —
+  // каждый класс возвращает свою реализацию (полиморфизм через переопределение)
+  describeAll() {
+    const all = [...this.employees, ...this.departments, ...this.positions];
+    return all.map(entity => ({
+      type: entity.constructor.name,
+      description: entity.describe()
+    }));
+  }
+
+  // ── Работа с файлами ──
+  exportToFile() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      version: '1.0',
+      departments: this.departments,
+      positions: this.positions,
+      employees: this.employees
+    };
+    this.repo.exportToFile(payload);
+  }
+
+  importFromFile(onSuccess, onError) {
+    this.repo.importFromFile((err, data) => {
+      if (err) { onError(err); return; }
+      try {
+        if (!data.departments || !data.positions || !data.employees)
+          throw new Error('Файл не содержит нужных данных');
+        this.departments = data.departments.map(x => Object.assign(new Department(), x));
+        this.positions   = data.positions.map(x => Object.assign(new Position(), x));
+        this.employees   = data.employees.map(x => Object.assign(new Employee(), x));
+        this.persist();
+        onSuccess(data);
+      } catch (e) { onError(e); }
+    });
+  }
+}
+
+// ============================================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================================
+const mgr = new EnterpriseManager();
+
+// ============================================================
+// UI УТИЛИТЫ
+// ============================================================
+function formatSalary(n) {
+  return n.toLocaleString('ru-RU') + ' сом';
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = (type === 'success' ? '✓ ' : '✗ ') + msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ============================================================
+// НАВИГАЦИЯ
+// ============================================================
+function switchView(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  btn.classList.add('active');
+
+  const titles = { dashboard: 'Дашборд', employees: 'Сотрудники', departments: 'Отделы', positions: 'Должности', structure: 'Структура предприятия', oop: 'Демонстрация принципов ООП' };
+  document.getElementById('page-title').textContent = titles[name];
+
+  const actions = {
+    employees: `<button class="btn btn-primary" onclick="openAddEmployee()">+ Добавить сотрудника</button>`,
+    departments: `<button class="btn btn-primary" onclick="openAddDept()">+ Добавить отдел</button>`,
+    positions: `<button class="btn btn-primary" onclick="openAddPosition()">+ Добавить должность</button>`,
+    dashboard: '', structure: '', oop: ''
+  };
+  document.getElementById('page-actions').innerHTML = actions[name] || '';
+
+  const renders = { dashboard: renderDashboard, employees: renderEmployees, departments: renderDepartments, positions: renderPositions, structure: renderStructure, oop: renderOop };
+  if (renders[name]) renders[name]();
+}
+
+// ============================================================
+// ДАШБОРД
+// ============================================================
+function renderDashboard() {
+  const stats = mgr.getStats();
+  document.getElementById('stat-total').textContent = stats.total;
+  document.getElementById('stat-depts').textContent = stats.depts;
+  document.getElementById('stat-positions').textContent = stats.positions;
+  document.getElementById('stat-avg-salary').textContent = stats.avgSalary;
+
+  // Последние сотрудники
+  const recent = [...mgr.employees].sort((a, b) => new Date(b.hireDate) - new Date(a.hireDate)).slice(0, 5);
+  const recentEl = document.getElementById('dash-recent-employees');
+  recentEl.innerHTML = recent.map(e => {
+    const dept = e.getDept(mgr.departments);
+    const pos = e.getPosition(mgr.positions);
+    const [bg, col] = e.getAvatarColor();
+    return `<div class="emp-row">
+      <div class="avatar" style="background:${bg};color:${col}">${e.getInitials()}</div>
+      <div style="flex:1">
+        <div class="emp-row-name">${e.getFullName()}</div>
+        <div class="emp-row-pos">${pos?.name || '—'} · ${dept?.name || '—'}</div>
+      </div>
+      <div class="emp-row-salary">${Math.round(e.salary / 1000)}K</div>
+    </div>`;
+  }).join('') || '<div class="empty-state" style="padding:20px">Нет сотрудников</div>';
+
+  // Распределение по отделам
+  const distEl = document.getElementById('dash-dept-dist');
+  const deptCounts = mgr.departments.map(d => ({ d, count: d.getEmployees(mgr.employees).length }))
+    .sort((a, b) => b.count - a.count);
+  const maxCount = Math.max(1, ...deptCounts.map(x => x.count));
+  distEl.innerHTML = deptCounts.map(({ d, count }) => `
+    <div style="padding:8px 16px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:500">${d.name}</span>
+        <span style="font-size:12px;color:var(--text3)">${count} чел.</span>
+      </div>
+      <div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(count / maxCount * 100)}%;background:var(--accent);border-radius:2px;transition:width 0.5s"></div>
+      </div>
+    </div>`).join('') || '<div class="empty-state" style="padding:20px">Нет отделов</div>';
+}
+
+// ============================================================
+// СОТРУДНИКИ
+// ============================================================
+function renderEmployees() {
+  const query = document.getElementById('emp-search').value;
+  const deptFilter = document.getElementById('emp-dept-filter').value;
+  const sortBy = document.getElementById('emp-sort').value;
+
+  // Обновить фильтр по отделам
+  const deptSel = document.getElementById('emp-dept-filter');
+  const prevDeptVal = deptSel.value;
+  deptSel.innerHTML = '<option value="">Все отделы</option>' +
+    mgr.departments.map(d => `<option value="${d.id}" ${d.id === prevDeptVal ? 'selected' : ''}>${d.name}</option>`).join('');
+
+  let list = query ? mgr.searchEmployees(query) : [...mgr.employees];
+  if (deptFilter) list = list.filter(e => e.deptId === deptFilter);
+  list = mgr.sortEmployees(list, sortBy);
+
+  const tbody = document.getElementById('emp-table-body');
+  const empty = document.getElementById('emp-empty');
+
+  if (!list.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = list.map((e, i) => {
+    const dept = e.getDept(mgr.departments);
+    const pos = e.getPosition(mgr.positions);
+    const [bg, col] = e.getAvatarColor();
+    return `<tr>
+      <td style="color:var(--text3);font-size:12px">${i + 1}</td>
+      <td>
+        <div class="emp-cell">
+          <div class="avatar" style="background:${bg};color:${col}">${e.getInitials()}</div>
+          <div>
+            <div class="emp-name">${e.getFullName()}</div>
+            <div class="emp-id">${e.email}</div>
+          </div>
+        </div>
+      </td>
+      <td>${dept ? `<span class="badge badge-blue">${dept.code}</span> ${dept.name}` : '<span style="color:var(--text3)">—</span>'}</td>
+      <td>${pos?.name || '<span style="color:var(--text3)">—</span>'}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:12px">${e.phone}</td>
+      <td style="font-family:'JetBrains Mono',monospace;color:var(--success)">${formatSalary(e.salary)}</td>
+      <td style="color:var(--text3);font-size:12px">${e.hireDate}</td>
+      <td><span class="badge ${e.getStatusBadge()}">${e.getStatusLabel()}</span></td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="openEditEmployee('${e.id}')">✏</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function populateDeptSelect() {
+  const sel = document.getElementById('emp-f-dept');
+  sel.innerHTML = '<option value="">— выберите отдел —</option>' +
+    mgr.departments.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+}
+
+function updatePositionSelect() {
+  const sel = document.getElementById('emp-f-position');
+  sel.innerHTML = '<option value="">— выберите должность —</option>' +
+    mgr.positions.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+function openAddEmployee() {
+  document.getElementById('modal-emp-title').textContent = 'Добавить сотрудника';
+  document.getElementById('emp-edit-id').value = '';
+  ['emp-f-firstname', 'emp-f-lastname', 'emp-f-phone', 'emp-f-email', 'emp-f-salary'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('emp-f-hiredate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('emp-f-status').value = 'active';
+  populateDeptSelect();
+  updatePositionSelect();
+  openModal('modal-employee');
+}
+
+function openEditEmployee(id) {
+  const e = mgr.employees.find(x => x.id === id);
+  if (!e) return;
+  document.getElementById('modal-emp-title').textContent = 'Редактировать сотрудника';
+  document.getElementById('emp-edit-id').value = id;
+  document.getElementById('emp-f-firstname').value = e.firstName;
+  document.getElementById('emp-f-lastname').value = e.lastName;
+  document.getElementById('emp-f-phone').value = e.phone;
+  document.getElementById('emp-f-email').value = e.email;
+  document.getElementById('emp-f-salary').value = e.salary;
+  document.getElementById('emp-f-hiredate').value = e.hireDate;
+  document.getElementById('emp-f-status').value = e.status;
+  populateDeptSelect();
+  document.getElementById('emp-f-dept').value = e.deptId || '';
+  updatePositionSelect();
+  document.getElementById('emp-f-position').value = e.positionId || '';
+  openModal('modal-employee');
+}
+
+function saveEmployee() {
+  const id = document.getElementById('emp-edit-id').value;
+  const data = {
+    firstName: document.getElementById('emp-f-firstname').value.trim(),
+    lastName: document.getElementById('emp-f-lastname').value.trim(),
+    deptId: document.getElementById('emp-f-dept').value || null,
+    positionId: document.getElementById('emp-f-position').value || null,
+    phone: document.getElementById('emp-f-phone').value.trim(),
+    email: document.getElementById('emp-f-email').value.trim(),
+    salary: parseInt(document.getElementById('emp-f-salary').value) || 0,
+    hireDate: document.getElementById('emp-f-hiredate').value,
+    status: document.getElementById('emp-f-status').value,
+  };
+  if (!data.firstName || !data.lastName) { showToast('Введите имя и фамилию', 'danger'); return; }
+  if (id) { mgr.updateEmployee(id, data); showToast('Сотрудник обновлён'); }
+  else { mgr.addEmployee(data); showToast('Сотрудник добавлен'); }
+  closeModal('modal-employee');
+  renderEmployees();
+  renderDashboard();
+}
+
+function deleteEmployee(id) {
+  const e = mgr.employees.find(x => x.id === id);
+  if (!e) return;
+  if (!confirm(`Удалить сотрудника ${e.getFullName()}?`)) return;
+  mgr.deleteEmployee(id);
+  showToast('Сотрудник удалён', 'danger');
+  renderEmployees();
+  renderDashboard();
+}
+
+// ============================================================
+// ОТДЕЛЫ
+// ============================================================
+function renderDepartments() {
+  const query = document.getElementById('dept-search').value.toLowerCase();
+  let list = mgr.departments.filter(d => d.name.toLowerCase().includes(query) || d.code.toLowerCase().includes(query));
+
+  const tbody = document.getElementById('dept-table-body');
+  const empty = document.getElementById('dept-empty');
+
+  if (!list.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = list.map(d => {
+    const head = d.getHead(mgr.employees);
+    const count = d.getEmployees(mgr.employees).length;
+    const avg = d.getAvgSalary(mgr.employees);
+    const total = d.getTotalSalary(mgr.employees);
+    return `<tr>
+      <td><span class="badge badge-teal">${d.code}</span> <strong>${d.name}</strong></td>
+      <td>${head ? head.getFullName() : '<span style="color:var(--text3)">не назначен</span>'}</td>
+      <td><strong>${count}</strong> <span style="color:var(--text3)">чел.</span></td>
+      <td style="color:var(--warning)">${avg ? formatSalary(avg) : '—'}</td>
+      <td style="color:var(--success)">${total ? formatSalary(total) : '—'}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="openEditDept('${d.id}')">✏</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteDept('${d.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddDept() {
+  document.getElementById('modal-dept-title').textContent = 'Добавить отдел';
+  document.getElementById('dept-edit-id').value = '';
+  document.getElementById('dept-f-name').value = '';
+  document.getElementById('dept-f-code').value = '';
+  const headSel = document.getElementById('dept-f-head');
+  headSel.innerHTML = '<option value="">— не назначен —</option>' +
+    mgr.employees.map(e => `<option value="${e.id}">${e.getFullName()}</option>`).join('');
+  headSel.value = '';
+  openModal('modal-department');
+}
+
+function openEditDept(id) {
+  const d = mgr.departments.find(x => x.id === id);
+  if (!d) return;
+  document.getElementById('modal-dept-title').textContent = 'Редактировать отдел';
+  document.getElementById('dept-edit-id').value = id;
+  document.getElementById('dept-f-name').value = d.name;
+  document.getElementById('dept-f-code').value = d.code;
+  const headSel = document.getElementById('dept-f-head');
+  headSel.innerHTML = '<option value="">— не назначен —</option>' +
+    mgr.employees.map(e => `<option value="${e.id}">${e.getFullName()}</option>`).join('');
+  headSel.value = d.headId || '';
+  openModal('modal-department');
+}
+
+function saveDepartment() {
+  const id = document.getElementById('dept-edit-id').value;
+  const data = {
+    name: document.getElementById('dept-f-name').value.trim(),
+    code: document.getElementById('dept-f-code').value.trim().toUpperCase(),
+    headId: document.getElementById('dept-f-head').value || null,
+  };
+  if (!data.name) { showToast('Введите название отдела', 'danger'); return; }
+  if (id) { mgr.updateDepartment(id, data); showToast('Отдел обновлён'); }
+  else { mgr.addDepartment(data); showToast('Отдел добавлен'); }
+  closeModal('modal-department');
+  renderDepartments();
+  renderDashboard();
+}
+
+function deleteDept(id) {
+  const d = mgr.departments.find(x => x.id === id);
+  if (!confirm(`Удалить отдел «${d?.name}»? Сотрудники останутся без отдела.`)) return;
+  mgr.deleteDepartment(id);
+  showToast('Отдел удалён', 'danger');
+  renderDepartments();
+}
+
+// ============================================================
+// ДОЛЖНОСТИ
+// ============================================================
+function renderPositions() {
+  const query = document.getElementById('pos-search').value.toLowerCase();
+  let list = mgr.positions.filter(p => p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query));
+
+  const tbody = document.getElementById('pos-table-body');
+  const empty = document.getElementById('pos-empty');
+  if (!list.length) { tbody.innerHTML = ''; empty.style.display = ''; return; }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = list.map(p => {
+    const emps = mgr.employees.filter(e => e.positionId === p.id);
+    const salaries = emps.map(e => e.salary);
+    const min = salaries.length ? Math.min(...salaries) : null;
+    const max = salaries.length ? Math.max(...salaries) : null;
+    return `<tr>
+      <td><strong>${p.name}</strong> <span class="badge ${p.getLevelBadge()} " style="margin-left:6px">${p.getLevelLabel()}</span></td>
+      <td style="color:var(--text2)">${p.category}</td>
+      <td><strong>${emps.length}</strong></td>
+      <td style="color:var(--text3)">${min !== null ? formatSalary(min) : '—'}</td>
+      <td style="color:var(--success)">${max !== null ? formatSalary(max) : '—'}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm" onclick="openEditPosition('${p.id}')">✏</button>
+          <button class="btn btn-danger btn-sm" onclick="deletePosition('${p.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openAddPosition() {
+  document.getElementById('modal-pos-title').textContent = 'Добавить должность';
+  document.getElementById('pos-edit-id').value = '';
+  document.getElementById('pos-f-name').value = '';
+  document.getElementById('pos-f-category').value = 'Технический персонал';
+  document.getElementById('pos-f-level').value = 'middle';
+  openModal('modal-position');
+}
+
+function openEditPosition(id) {
+  const p = mgr.positions.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modal-pos-title').textContent = 'Редактировать должность';
+  document.getElementById('pos-edit-id').value = id;
+  document.getElementById('pos-f-name').value = p.name;
+  document.getElementById('pos-f-category').value = p.category;
+  document.getElementById('pos-f-level').value = p.level;
+  openModal('modal-position');
+}
+
+function savePosition() {
+  const id = document.getElementById('pos-edit-id').value;
+  const data = {
+    name: document.getElementById('pos-f-name').value.trim(),
+    category: document.getElementById('pos-f-category').value,
+    level: document.getElementById('pos-f-level').value,
+  };
+  if (!data.name) { showToast('Введите название должности', 'danger'); return; }
+  if (id) { mgr.updatePosition(id, data); showToast('Должность обновлена'); }
+  else { mgr.addPosition(data); showToast('Должность добавлена'); }
+  closeModal('modal-position');
+  renderPositions();
+}
+
+function deletePosition(id) {
+  const p = mgr.positions.find(x => x.id === id);
+  if (!confirm(`Удалить должность «${p?.name}»?`)) return;
+  mgr.deletePosition(id);
+  showToast('Должность удалена', 'danger');
+  renderPositions();
+}
+
+// ============================================================
+// СТРУКТУРА ПРЕДПРИЯТИЯ
+// ============================================================
+function renderStructure() {
+
+  const org = document.getElementById('org-chart');
+
+  org.innerHTML = `
+
+  <div class="org-chart">
+
+    <!-- ГЕНЕРАЛЬНЫЙ ДИРЕКТОР -->
+    <div class="org-top">
+      <div class="org-card">
+        <div class="org-avatar">👔</div>
+        <div class="org-name">Abdirasulov Abdilakim</div>
+        <div class="org-role">Генеральный директор</div>
+      </div>
+    </div>
+
+    <!-- СРЕДНИЙ УРОВЕНЬ -->
+    <div class="org-level">
+
+      <!-- МАРКЕТИНГ -->
+      <div>
+        <div class="org-card">
+          <div class="org-avatar">👩</div>
+          <div class="org-name">Назарбаев Нурслтан</div>
+          <div class="org-role">Директор по маркетингу</div>
+        </div>
+
+        <div class="org-children">
+
+          <div class="org-card">
+            <div class="org-avatar">👩</div>
+            <div class="org-name">Эмиркулов Дамир</div>
+            <div class="org-role">Маркетолог</div>
+          </div>
+
+          <div class="org-card">
+            <div class="org-avatar">👨</div>
+            <div class="org-name">Павел Морозов</div>
+            <div class="org-role">Реклама</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- РАЗРАБОТКА -->
+      <div>
+        <div class="org-card">
+          <div class="org-avatar">👨</div>
+          <div class="org-name">Зулумбеков Нурислам</div>
+          <div class="org-role">Технический директор</div>
+        </div>
+
+        <div class="org-children">
+
+          <div class="org-card">
+            <div class="org-avatar">👨</div>
+            <div class="org-name">Шекеров Кемир</div>
+            <div class="org-role">Middle разработчик</div>
+          </div>
+
+          <div class="org-card">
+            <div class="org-avatar">👨</div>
+            <div class="org-name">Малаев Бека</div>
+            <div class="org-role">Junior разработчик</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ПРОДАЖИ -->
+      <div>
+        <div class="org-card">
+          <div class="org-avatar">👨</div>
+          <div class="org-name">Джолдошбеков Эмир</div>
+          <div class="org-role">Директор по продажам</div>
+        </div>
+
+        <div class="org-children">
+
+          <div class="org-card">
+            <div class="org-avatar">👨</div>
+            <div class="org-name">Ерланов Шепард</div>
+            <div class="org-role">Менеджер</div>
+          </div>
+
+          <div class="org-card">
+            <div class="org-avatar">👩</div>
+            <div class="org-name">Елена Новикова</div>
+            <div class="org-role">HR менеджер</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  `;
+}
+
+function toggleDept(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('.dept-toggle');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : '';
+  arrow.classList.toggle('open', !isOpen);
+}
+
+// ============================================================
+// СТАРТ
+// ============================================================
+renderDashboard();
+populateDeptSelect();
+
+// ============================================================
+// ООП ДЕМО
+// ============================================================
+let oopFilter = 'all';
+
+function filterOop(type) {
+  oopFilter = type;
+  ['all','Employee','Department','Position'].forEach(t => {
+    const btn = document.getElementById('oop-btn-' + t);
+    if (!btn) return;
+    btn.style.borderColor = t === type ? 'var(--accent)' : '';
+    btn.style.color = t === type ? 'var(--accent)' : '';
+  });
+  renderOop();
+}
+
+function renderOop() {
+  // Полиморфизм: вызываем describe() на объектах разных классов через общий интерфейс
+  const all = mgr.describeAll();
+  const filtered = oopFilter === 'all' ? all : all.filter(x => x.type === oopFilter);
+
+  const typeColors = {
+    Employee: 'var(--accent)',
+    Department: 'var(--success)',
+    Position: 'var(--warning)',
+  };
+  const typeBg = {
+    Employee: 'rgba(79,156,249,0.08)',
+    Department: 'rgba(61,214,140,0.08)',
+    Position: 'rgba(245,166,35,0.08)',
+  };
+
+  const el = document.getElementById('oop-list');
+  el.innerHTML = filtered.map((item, i) => `
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:9px 16px;border-bottom:1px solid var(--border)">
+      <span style="color:var(--text3);min-width:24px;font-size:11px">${i + 1}</span>
+      <span style="padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:${typeBg[item.type]};color:${typeColors[item.type]};flex-shrink:0;min-width:88px;text-align:center">${item.type}</span>
+      <span style="color:var(--text2);line-height:1.6">${item.description}</span>
+    </div>
+  `).join('') || '<div style="padding:24px;text-align:center;color:var(--text3)">Нет данных</div>';
+}
+
+// ============================================================
+// ЭКСПОРТ / ИМПОРТ
+// ============================================================
+function doExport() {
+  mgr.exportToFile();
+  showToast('Файл скачан — данные экспортированы');
+}
+
+function doImport() {
+  mgr.importFromFile(
+    (data) => {
+      showToast(`Импортировано: ${data.employees.length} сотр., ${data.departments.length} отд., ${data.positions.length} должн.`);
+      renderDashboard();
+    },
+    (err) => showToast(err.message, 'danger')
+  );
+}
+</script>
+<script>
+async function testServer() {
+
+    const response =
+        await fetch("http://localhost:8080");
+
+    const data = await response.text();
+
+    document.getElementById("serverData").innerText =
+        data;
+}
+</script>
+
+<button onclick="testServer()">
+    Проверить сервер  
+</button>
+
+<div id="serverData"></div>
+
+<script>
+
+async function loadData() {
+
+    const response =
+        await fetch("http://172.20.10.3:8080/api/test");
+
+    const data = await response.json();
+
+    document.getElementById("serverData").innerText =
+        data.message;
+}
+
+loadData();
+
+</script>
+</body>
+</html>

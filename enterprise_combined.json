@@ -1,0 +1,118 @@
+{
+    "departments": [
+        {
+            "code": "DEV",
+            "headId": 6,
+            "id": 1,
+            "name": "Development"
+        },
+        {
+            "code": "ENG",
+            "headId": 0,
+            "id": 2,
+            "name": "Engineering"
+        },
+        {
+            "code": "HR",
+            "headId": 9,
+            "id": 3,
+            "name": "HR"
+        },
+        {
+            "code": "FIN",
+            "headId": 0,
+            "id": 4,
+            "name": "Finance"
+        }
+    ],
+    "employees": [
+        {
+            "age": 30,
+            "departmentId": 1,
+            "email": "alex@corp.com",
+            "hireDate": "2021-03-15",
+            "id": 10,
+            "name": "Alex Ivanov",
+            "positionId": 6,
+            "salary": 150000.0,
+            "status": "active"
+        },
+        {
+            "age": 27,
+            "departmentId": 1,
+            "email": "maria@corp.com",
+            "hireDate": "2022-06-01",
+            "id": 11,
+            "name": "Maria Petrova",
+            "positionId": 7,
+            "salary": 110000.0,
+            "status": "active"
+        },
+        {
+            "age": 35,
+            "departmentId": 2,
+            "email": "ivan@corp.com",
+            "hireDate": "2022-09-12",
+            "id": 12,
+            "name": "Ivan Smirnov",
+            "positionId": 7,
+            "salary": 95000.0,
+            "status": "remote"
+        },
+        {
+            "age": 29,
+            "departmentId": 3,
+            "email": "anna@corp.com",
+            "hireDate": "2020-11-20",
+            "id": 13,
+            "name": "Anna Volkova",
+            "positionId": 8,
+            "salary": 80000.0,
+            "status": "vacation"
+        },
+        {
+            "age": 33,
+            "departmentId": 4,
+            "email": "denis@corp.com",
+            "hireDate": "2023-01-09",
+            "id": 14,
+            "name": "Denis Orlov",
+            "positionId": 9,
+            "salary": 120000.0,
+            "status": "active"
+        }
+    ],
+    "nextId": 15,
+    "positions": [
+        {
+            "category": "Управленческий персонал",
+            "id": 5,
+            "level": "director",
+            "title": "Генеральный директор"
+        },
+        {
+            "category": "Технический персонал",
+            "id": 6,
+            "level": "senior",
+            "title": "Senior Developer"
+        },
+        {
+            "category": "Технический персонал",
+            "id": 7,
+            "level": "middle",
+            "title": "Middle Developer"
+        },
+        {
+            "category": "HR и обучение",
+            "id": 8,
+            "level": "lead",
+            "title": "HR Manager"
+        },
+        {
+            "category": "Финансовый персонал",
+            "id": 9,
+            "level": "senior",
+            "title": "Financial Analyst"
+        }
+    ]
+}
